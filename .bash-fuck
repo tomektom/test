@@ -1,0 +1,126 @@
+print_message () {
+
+    local messages
+    local message
+
+    messages=(
+        "Nie wiesz niczego"
+        "RTFM!"
+        "Haha!"
+        "Haha, n00b!"
+        "Łał! Ten błąd był imponujący!"
+        "Żałosne."
+        "Idiota!"
+        "Bezmózgowiec!"
+        "n00b alert!"
+        "lol"
+        "Nagroda Darwina wędruje do... ${USER}!"
+        "ERROR_INCOMPETENT_USER"
+        "Wiesz, brak umiejętności też jest umiejętnością."
+        "Źle półgłówku."
+        "Chyba masz siano zamiast mózgu."
+        "Czym cię matka karmiła, że takie bzdury piszesz?"
+        "Daj spokój. Oboje doskonale wiemy, że to przekracza twoje umiejętności."
+        "Czy kiedykolwiek będziesz w stanie napisać poprawną komendę?"
+        "Chyba nie próbujesz rozmawiać z komputerem???"
+        "To nie Windows."
+        "rm -rf / ... wykonano."
+        "Wydaje mi się, że problem leży między klawiaturą a oparciem krzesła."
+        "error code: 1D10T"
+        "Pro tip: wpisz poprawną komendę!"
+        "To nie przeglądarka internetowa."
+        "(╯°□°）╯︵ ┻━┻"
+        "¯\\_(ツ)_/¯"
+        "W takim razie wykonam za ciebie rm -rf /"
+        "Dlaczego jesteś taki głupi?!"
+        "Być może komputery nie są dla ciebie..."
+        "Czy ty aby na pewno umiesz pisać?"
+        "Nie masz czegoś lepszego do roboty?!"
+        "Chyba powinieneś wrócić do podstawówki."
+        "Oto powód przez który nikt cię nie lubi."
+        "Phi, też mi coś."
+        "Następnym razem spróbuj użyć mózgu!"
+        "Mózg ci się przegrzał."
+        "Nie wiem, śmiać się czy płakać."
+        "Jesteś największą pomyłką świata."
+        "Zawsze jesteś taki głupi czy to tylko dzisiaj?!"
+        "Chyba upadłeś na głowę w dzieciństwie?"
+        "Weź zepnij półdupki i idź na spacer."
+        "Nie wiem co uczyniło cię tak głupim, ale było to diabelnie skuteczne."
+        "Nie jesteś tak zły jak mówią inni, jesteś znacznie gorszy."
+        "Twój mózg się gdzieś zgubił."
+        "Jesteś zbyt głupi żeby móc ze mną rozmawiać."
+        "Za 10 lat może będziesz w stanie to zrobić."
+    )
+
+    # If CMD_NOT_FOUND_MSGS array is populated use those messages instead of the defaults
+    [[ -n ${CMD_NOT_FOUND_MSGS} ]] && messages=( "${CMD_NOT_FOUND_MSGS[@]}" )
+
+    # If CMD_NOT_FOUND_MSGS_APPEND array is populated append those to the existing messages
+    [[ -n ${CMD_NOT_FOUND_MSGS_APPEND} ]] && messages+=( "${CMD_NOT_FOUND_MSGS_APPEND[@]}" )
+
+    # Seed RANDOM with an integer of some length
+    RANDOM=$(od -vAn -N4 -tu < /dev/urandom)
+
+    # Print a randomly selected message, but only about half the time to annoy the user a
+    # little bit less.
+        message=${messages[${RANDOM} % ${#messages[@]}]}
+        printf "\\n  %s\\n\\n" "$(tput bold)$(tput setaf 1)${message}$(tput sgr0)" >&2
+}
+
+function_exists () {
+    # Zsh returns 0 even on non existing functions with -F so use -f
+    declare -f $1 > /dev/null
+    return $?
+}
+
+#
+# The idea below is to copy any existing handlers to another function
+# name and insert the message in front of the old handler in the
+# new handler. By default, neither bash or zsh has has a handler function
+# defined, so the default behaviour is replicated.
+#
+# Also, ensure the handler is only copied once. If we do not ensure this
+# the handler would add itself recursively if this file happens to be
+# sourced multiple times in the same shell, resulting in a neverending
+# stream of messages.
+#
+
+#
+# Zsh
+#
+if function_exists command_not_found_handler; then
+    if ! function_exists orig_command_not_found_handler; then
+        eval "orig_$(declare -f command_not_found_handler)"
+    fi
+else
+    orig_command_not_found_handler () {
+        printf "zsh: command not found: %s\\n" "$1" >&2
+        return 127
+    }
+fi
+
+command_not_found_handler () {
+    print_message
+    orig_command_not_found_handler "$@"
+}
+
+
+#
+# Bash
+#
+if function_exists command_not_found_handle; then
+    if ! function_exists orig_command_not_found_handle; then
+        eval "orig_$(declare -f command_not_found_handle)"
+    fi
+else
+    orig_command_not_found_handle () {
+        printf "%s: %s: command not found\\n" "$0" "$1" >&2
+        return 127
+    }
+fi
+
+command_not_found_handle () {
+    print_message
+    orig_command_not_found_handle "$@"
+}
