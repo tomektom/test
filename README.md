@@ -15,3 +15,9 @@ fi
 ## Korzystanie
 
 Wpisz dowolną błędną komendę :)
+
+## Pochodzenie
+
+Skrypt jest przetłumaczony i lekko zmodyfikowany z tego repozytorium:
+
+https://github.com/hkbakke/bash-insulter
