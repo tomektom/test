@@ -52,6 +52,7 @@ print_message () {
         "Jesteś zbyt głupi żeby móc ze mną rozmawiać."
         "Za 10 lat może będziesz w stanie to zrobić."
 	":P"
+	"Idiota"
     )
 
     # If CMD_NOT_FOUND_MSGS array is populated use those messages instead of the defaults
