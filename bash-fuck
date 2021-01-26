@@ -51,6 +51,8 @@ print_message () {
         "Twój mózg się gdzieś zgubił."
         "Jesteś zbyt głupi żeby móc ze mną rozmawiać."
         "Za 10 lat może będziesz w stanie to zrobić."
+	"Jesteś idiotą."
+	":P"
     )
 
     # If CMD_NOT_FOUND_MSGS array is populated use those messages instead of the defaults
